@@ -1,0 +1,81 @@
+Install qTest Launch Automation Host: (https://documentation.tricentis.com/qtest/10500/en/content/launch/automation_host/installation/qtest_automation_host_2.x_installation_guide_on_linux.htm#qTestAutomationHost2.xInstallationGuideonLinux)
+
+
+wget https://qasymphony.jfrog.io/artifactory/launch-release-local/automation-hosts/agentctl/2.3.6/agentctl-2.3.6-linux-x64-full.tgz
+
+sudo tar -xf agentctl-2.3.6-linux-x64-full.tgz
+
+cd agentctl-2.3.6
+
+vi agent.config
+
+-----------------------------------------------------------
+port = 6789
+hostname = 'CSB Provar DEV Host'
+autostart = true
+logrotationbyday = 30
+qtest {
+  url = 'https://qtestdev.dcs.in.gov'
+  token = 'bmVwaGVsZXxDU0ItSVREZXZPcHNTeXNBZG1pbnNAZGNzLklOLmdvdjoxNjcxNTY0Nzg1NTQyOmE5NTIwOTEwYzJkNTQxNDJhODlkOWJiZDM1OGIwMjE4'
+}
+proxy {
+  enable = false
+  script = ''
+  host = ''
+  port = 0
+  username = ''
+  password = ''
+}
+-----------------------------------------------------------
+
+cat agent.config
+
+sudo systemctl ./install 'DEV-Provar-Host'
+
+sudo systemctl start DEV-Provar-Host
+
+
+
+Install Provar Prerequisites: (https://www.provartesting.com/documentation/devops/running-provar-on-linux/)
+
+Install Java JDK:
+sudo yum install java-1.8.0-openjdk-devel.x86_64
+sudo java -version
+
+Install Apache ANT:
+wget https://dlcdn.apache.org//ant/binaries/apache-ant-1.10.12-bin.tar.gz
+sudo tar xvfvz apache-ant-1.10.12-bin.tar.gz -C /opt 
+sudo ln -s /opt/apache-ant-1.10.12 /opt/ant/
+sudo sh -c 'echo ANT_HOME=/opt/ant >> /etc/environment'
+sudo ln -s /opt/ant/bin/ant /usr/bin/ant
+sudo ant –version
+
+Install Chromium Browser:
+sudo wget https://dl.google.com/linux/direct/google-chrome-stable_current_x86_64.rpm
+sudo yum install ./google-chrome-stable_current_x86_64.rpm
+sudo ln -s /usr/bin/google-chrome-stable /usr/bin/chromium
+sudo chromium -version
+
+Install Provar:
+sudo wget -qP /srv/Provar https://download.provartesting.com/latest/Provar_ANT_latest.zip
+sudo unzip /srv/Provar/Provar_ANT_latest.zip -d /srv/Provar/Provar_ANT_latest
+export PROVAR_HOME='/srv/Provar/Provar_ANT_latest'
+
+Install Xvfb for headless browser testing:
+sudo yum install xorg-x11-server-Xvfb
+
+Copy Provar License file (e.g. DCS Execution.properties) to /usr/Provar/.licenses
+
+Update Provar project /home/devprvrtemp/<project>/ANT/build.xml:
+<property name="provar.home" value="${env.PROVAR_HOME}"/>
+<property name="testproject.home" value="/home/devprvrtemp/demo"/>
+
+<Run-Test-Case resultsPathDisposition="Replace"
+
+
+
+Execution:
+xvfb-run ant -f /home/devprvrtemp/<project>/ANT/build.xml
+
+Results:
+/home/devprvrtemp/<project>/ANT/Results/JUnit.xml
