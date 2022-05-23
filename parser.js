@@ -46,7 +46,7 @@ exports.handler = function ({ event: body, constants, triggers }, context, callb
                                     var classArray = [];
                                     classArray = testcase.$.name.replace('=>', ':').split(':');
                                     var depth = classArray.length;
-                                    var className = classArray[(depth - 1)];
+                                    var className = unicodeEntities(classArray[(depth - 1)]);
                                     var moduleNames = [];
                                     var moduleCount = 0;
                                     classArray.forEach(function(folder) {
@@ -142,7 +142,7 @@ exports.handler = function ({ event: body, constants, triggers }, context, callb
                             var classArray = [];
                             classArray = testcase.$.name.replace('=>', ':').split(':');
                             var depth = classArray.length;
-                            var className = classArray[(depth - 1)];
+                            var className = unicodeEntities(classArray[(depth - 1)]);
                             var moduleNames = [];
                             var moduleCount = 0;
                             classArray.forEach(function(folder) {
@@ -236,5 +236,9 @@ exports.handler = function ({ event: body, constants, triggers }, context, callb
 };
 
 function htmlEntities(str) {
-    return String(str).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+    return String(str).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/[\u{0080}-\u{10FFFF}]/gu,"").replace(/[\u{0000}]/gu,"");
+}
+
+function unicodeEntities(str) {
+    return String(str).replace(/[\u{0080}-\u{10FFFF}]/gu,"").replace(/[\u{0000}]/gu,"").replace(/[\u{0013}]/gu,"");
 }
